@@ -15,20 +15,10 @@
 };
 
 / {
-    /* ===== トラックボール リスナー設定 ===== */
     trackball_listener {
         status = "okay";
         compatible = "zmk,input-listener";
         device = <&trackball>;
-        
-        /* stay-on-layer: マウスレイヤーの保持動作を制御
-           この設定により:
-           + トラックボール操作でマウスレイヤーに自動切り替わり
-           + マウスレイヤー内のキー（マウスボタン等）を押してもレイヤーは変わらない
-           + マウスレイヤー以外のキー（通常のタイピングキー）を押すとレイヤーから抜ける
-           
-           無効にする場合(削除検討): トラックボール操作停止時に自動的にレイヤーが戻る */
-        stay-on-layer;
     };
 };
 
@@ -53,41 +43,19 @@
 
 &xiao_serial { status = "disabled"; };
 
-/* ===== SPI インターフェース設定 (トラックボール通信) ===== */
 &spi0 {
     status = "okay";
     compatible = "nordic,nrf-spim";
-    
-    /* ピン制御設定: スリープ時と通常時で異なるピン設定を使用 */
-    /* 通常時のピン設定 */
     pinctrl-0 = <&spi0_default>;
-    /* スリープ時のピン設定 */
     pinctrl-1 = <&spi0_sleep>;
     pinctrl-names = "default", "sleep";
-    
-    /* チップセレクト (CS) ピン設定
-       GPIO0 9 ピンをチップセレクトとして使用 */
     cs-gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
 
-    /* ===== PMW3610 トラックボール ハードウェア設定 ===== */
     trackball: trackball@0 {
         status = "okay";
-        /* PMW3610 トラックボールセンサー */
         compatible = "pixart,pmw3610";
-        /* SPI アドレス */
         reg = <0>;
-        
-        /* SPI 通信速度: トラックボール通信の速度
-           2000000 = 2MHz (現在: 現在の設定)
-           1000000 = 1MHz (低速: 安定性重視)
-           4000000 = 4MHz (高速: レスポンス重視)
-           調整: 通信の信頼性またはレスポンスを変更したい場合に調整 */
         spi-max-frequency = <2000000>;
-        
-        /* 割り込みピン (IRQ): トラックボール動作検知
-           GPIO0 2 ピンで割り込み信号受信
-           GPIO_ACTIVE_LOW = 割り込みは LOW で発生
-           GPIO_PULL_UP = プルアップ抵抗を有効化 */
         irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
     };
 };
